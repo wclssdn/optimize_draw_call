@@ -4,6 +4,8 @@ Only for CocosCreator
 
 The core file is `assets/Script/Lib/OptimizeDrawCall.ts`. You can copy it to your project.
 
+Topic: https://forum.cocos.com/t/draw-call/80902
+
 ## TODO
 
 - [ ] support multiple paths(Now, you can also use multiple nodes that contain this Component to do it)
