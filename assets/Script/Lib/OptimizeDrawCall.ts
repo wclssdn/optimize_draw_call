@@ -5,6 +5,9 @@ const { ccclass, property } = cc._decorator;
  * 通过把相同类型的节点放在一起，合并draw call实现降低draw call效果
  * @author Nemo
  * @thanks mister_akai
+ * @version 1.1
+ * @link https://forum.cocos.com/t/draw-call/80902
+ * @source https://github.com/wclssdn/optimize_draw_call/
  */
 @ccclass
 export default class OptimizeDC extends cc.Component {
@@ -31,10 +34,11 @@ export default class OptimizeDC extends cc.Component {
      * 例如：nodeNameA/nodeNameB/nodeNameC
      */
     @property({
-        displayName: '节点路径',
-        tooltip: '至倒数第二层节点'
+        type: cc.String,
+        displayName: '待优化节点路径',
+        tooltip: '相对于待优化根节点计算，顺序决定zIndex，索引低的在底层'
     })
-    nodePath: string = '';
+    pathToNode: string[] = [];
 
     /**
      * 存放分层节点的节点
@@ -57,43 +61,23 @@ export default class OptimizeDC extends cc.Component {
     })
     containerZIndex: number = 1;
 
-    /**
-     * 待优化的节点名列表
-     * 注意先后顺序，前边的层级低，后边的层级高（层级不对，会导致错误遮盖）
-     */
-    @property({
-        type: [cc.String],
-        displayName: '待优化的节点名列表',
-        tooltip: '注意先后顺序，前边的层级低，后边的层级高（层级不对，会导致错误遮盖）'
-    })
-    nodeNames: string[] = [];
-
     start() {
         this.enabledOptimize && this.do()
     }
 
     async do() {
         await 0;
-        let target = this.findTarget(this.rootNode, this.nodePath)
-        if (target.length <= 0) {
-            cc.error("no target to optimize draw call")
-            return;
-        }
-        target.forEach(node => {
-            this.nodeNames.forEach((name, zIndex) => {
-                node.children.forEach(v => {
-                    if (v.name != name) {
-                        return;
-                    }
-                    let pos = this.container.convertToNodeSpaceAR(v.convertToWorldSpaceAR(cc.Vec2.ZERO))
-                    v.parent = this.container;
-                    v.position = pos
-                    v.zIndex = zIndex
-                })
+        this.pathToNode.forEach((nodePath, zIndex) => {
+            this.findTarget(this.rootNode, nodePath).forEach(node => {
+                let pos = this.container.convertToNodeSpaceAR(node.convertToWorldSpaceAR(cc.Vec2.ZERO))
+                node.parent = this.container;
+                node.position = pos
+                node.zIndex = zIndex
             })
-            this.container.zIndex = this.containerZIndex
-        });
+        })
+        this.container.zIndex = this.containerZIndex
     }
+
     findTarget(rootNode: cc.Node, nodePath: string): cc.Node[] {
         if (!rootNode) {
             return []
@@ -101,12 +85,8 @@ export default class OptimizeDC extends cc.Component {
         let path = nodePath.split('/').filter(v => v.length > 0);
         let firstPath = path.shift()
         if (path.length == 0) {
-            let r = rootNode.children.filter(v => {
-                return v.name == firstPath
-            })
-            return r
+            return rootNode.children.filter(v => v.name == firstPath)
         }
-
         let target = []
         rootNode.children.forEach(v => {
             if (v.name == firstPath) {

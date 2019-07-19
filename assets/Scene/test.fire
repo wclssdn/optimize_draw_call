@@ -129,15 +129,14 @@
     "rootNode": {
       "__id__": 4
     },
-    "nodePath": "flowLine/word",
+    "pathToNode": [
+      "flowLine/word/bg",
+      "flowLine/word/word label"
+    ],
     "container": {
       "__id__": 11
     },
     "containerZIndex": 1,
-    "nodeNames": [
-      "bg",
-      "word label"
-    ],
     "_id": "9bF4Y95axCUrN9sOD50m3A"
   },
   {
