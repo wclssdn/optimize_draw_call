@@ -6,5 +6,5 @@ The core file is `assets/Script/Lib/OptimizeDrawCall.ts`. You can copy it to you
 
 ## TODO
 
-- [ ] support multiple paths
-- [ ] support proxy mode
+- [ ] support multiple paths(Now, you can also use multiple nodes that contain this Component to do it)
+- [ ] support proxy mode(when you destory optimized node's parent, it will not destory automatically)
