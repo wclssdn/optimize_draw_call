@@ -10,6 +10,7 @@ Topic: https://forum.cocos.com/t/draw-call/80902
 ## DONE
 
 - [x] support multiple paths(Now, you can also use multiple nodes that contain this Component to do it)
+- [x] support multiple root nodes
 
 
 ## TODO
