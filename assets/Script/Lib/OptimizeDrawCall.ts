@@ -1,16 +1,7 @@
 const { ccclass, property } = cc._decorator;
 
-/**
- * Draw Call优化组件
- * 通过把相同类型的节点放在一起，合并draw call实现降低draw call效果
- * @author Nemo
- * @thanks mister_akai
- * @version 1.1
- * @link https://forum.cocos.com/t/draw-call/80902
- * @source https://github.com/wclssdn/optimize_draw_call/
- */
-@ccclass
-export default class OptimizeDC extends cc.Component {
+@ccclass("OptimizeDrawCallOptions")
+export class OptimizeDrawCallOptions {
 
     @property({
         displayName: '开启优化',
@@ -60,22 +51,45 @@ export default class OptimizeDC extends cc.Component {
         tooltip: '如层级不对，可自行调整，一般节点层级默认为0'
     })
     containerZIndex: number = 1;
+}
+
+
+/**
+ * Draw Call优化组件
+ * 通过把相同类型的节点放在一起，合并draw call实现降低draw call效果
+ * @author Nemo
+ * @thanks mister_akai
+ * @version 1.2
+ * @link https://forum.cocos.com/t/draw-call/80902
+ * @source https://github.com/wclssdn/optimize_draw_call/
+ */
+@ccclass
+export default class OptimizeDC extends cc.Component {
+
+    @property({
+        type: OptimizeDrawCallOptions,
+        displayName: '优化项',
+        tooltip: '支持设置多个根节点'
+    })
+    options: OptimizeDrawCallOptions[] = []
 
     start() {
-        this.enabledOptimize && this.do()
+        this.do()
     }
 
     async do() {
         await 0;
-        this.pathToNode.forEach((nodePath, zIndex) => {
-            this.findTarget(this.rootNode, nodePath).forEach(node => {
-                let pos = this.container.convertToNodeSpaceAR(node.convertToWorldSpaceAR(cc.Vec2.ZERO))
-                node.parent = this.container;
-                node.position = pos
-                node.zIndex = zIndex
+        this.options.forEach(option => {
+            option.pathToNode.forEach((nodePath, zIndex) => {
+                this.findTarget(option.rootNode, nodePath).forEach(node => {
+                    let pos = option.container.convertToNodeSpaceAR(node.convertToWorldSpaceAR(cc.Vec2.ZERO))
+                    node.parent = option.container;
+                    node.position = pos
+                    node.zIndex = zIndex
+                })
             })
+            option.container.zIndex = option.containerZIndex
         })
-        this.container.zIndex = this.containerZIndex
     }
 
     findTarget(rootNode: cc.Node, nodePath: string): cc.Node[] {
