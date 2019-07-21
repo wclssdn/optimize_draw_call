@@ -1,4 +1,4 @@
-const { ccclass, property } = cc._decorator;
+const { ccclass, property, menu, executionOrder, help } = cc._decorator;
 
 @ccclass("OptimizeDrawCallOptions")
 export class OptimizeDrawCallOptions {
@@ -27,7 +27,7 @@ export class OptimizeDrawCallOptions {
     @property({
         type: cc.String,
         displayName: '待优化节点路径',
-        tooltip: '相对于待优化根节点计算，顺序决定zIndex，索引低的在底层'
+        tooltip: '相对于待优化根节点计算，顺序决定zIndex，索引低的在底层。例如：nodeNameA/nodeNameB/nodeNameC'
     })
     pathToNode: string[] = [];
 
@@ -64,12 +64,15 @@ export class OptimizeDrawCallOptions {
  * @source https://github.com/wclssdn/optimize_draw_call/
  */
 @ccclass
-export default class OptimizeDC extends cc.Component {
+@menu("优化组件/DrawCall")
+@executionOrder(1)
+@help("https://github.com/wclssdn/optimize_draw_call/")
+export default class OptimizeDrawCall extends cc.Component {
 
     @property({
         type: OptimizeDrawCallOptions,
         displayName: '优化项',
-        tooltip: '支持设置多个根节点'
+        tooltip: '不共享同一个根节点，更灵活'
     })
     options: OptimizeDrawCallOptions[] = []
 
@@ -77,8 +80,11 @@ export default class OptimizeDC extends cc.Component {
         this.do()
     }
 
-    async do() {
-        await 0;
+    /**
+     * 执行优化操作
+     * 当节点内容发生动态变化时，可手动调用
+     */
+    do() {
         this.options.forEach(option => {
             option.pathToNode.forEach((nodePath, zIndex) => {
                 this.findTarget(option.rootNode, nodePath).forEach(node => {
