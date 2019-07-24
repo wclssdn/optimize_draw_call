@@ -4,7 +4,7 @@ import Word from "../Prefab/word";
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export default class NewClass extends cc.Component {
+export default class Test extends cc.Component {
 
     @property(cc.Prefab)
     word: cc.Prefab = null;
@@ -28,5 +28,7 @@ export default class NewClass extends cc.Component {
         }
     }
 
-    // update (dt) {}
+    gotoScene(event: cc.Event, scene: string) {
+        cc.director.loadScene(scene)
+    }
 }

@@ -32,6 +32,17 @@ export class OptimizeDrawCallOptions {
     pathToNode: string[] = [];
 
     /**
+     * 待隐藏节点的路径，层级使用斜线分隔
+     * 例如：nodeNameA/nodeNameB/nodeNameC
+     */
+    @property({
+        type: cc.String,
+        displayName: '待隐藏节点路径',
+        tooltip: '相对于待优化根节点计算，用于移除占用高度的空节点（子节点全部被优化的父节点）。例如：nodeNameA/nodeNameB/nodeNameC'
+    })
+    pathToNode4Hide: string[] = [];
+
+    /**
      * 存放分层节点的节点
      * 要考虑好和优化节点的联动
      */
@@ -86,6 +97,24 @@ export default class OptimizeDrawCall extends cc.Component {
      */
     do() {
         this.options.forEach(option => {
+            cc.log("option", option.enabledOptimize)
+            if (!option.enabledOptimize){
+                return 
+            }
+            let widget = option.rootNode.getComponent(cc.Widget)
+            if (widget) {
+                widget.updateAlignment()
+            }
+            let layout = option.rootNode.getComponent(cc.Layout)
+            if (layout) {
+                layout.updateLayout()
+            }
+            option.container.width = option.rootNode.width
+            option.container.height = option.rootNode.height
+            option.rootNode.on(cc.Node.EventType.SIZE_CHANGED, () => {
+                option.container.width = option.rootNode.width
+                option.container.height = option.rootNode.height
+            })
             option.pathToNode.forEach((nodePath, zIndex) => {
                 this.findTarget(option.rootNode, nodePath).forEach(node => {
                     let pos = option.container.convertToNodeSpaceAR(node.convertToWorldSpaceAR(cc.Vec2.ZERO))
@@ -93,6 +122,10 @@ export default class OptimizeDrawCall extends cc.Component {
                     node.position = pos
                     node.zIndex = zIndex
                 })
+            })
+            // 子节点均被优化掉，隐藏对应节点，释放位置
+            option.pathToNode4Hide.forEach(nodePath => {
+                this.findTarget(option.rootNode, nodePath).forEach(node => node.active = false)
             })
             option.container.zIndex = option.containerZIndex
         })
