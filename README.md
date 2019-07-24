@@ -7,11 +7,16 @@ The core file is `assets/Script/Lib/OptimizeDrawCall.ts`. You can copy it to you
 Topic: https://forum.cocos.com/t/draw-call/80902
 
 
+## DEMO
+
+- [x] common prefabs(bag)
+- [x] rank(scroll view)
+
 ## DONE
 
 - [x] support multiple paths(Now, you can also use multiple nodes that contain this Component to do it)
 - [x] support multiple root nodes
-
+- [x] support inactive nodes
 
 ## TODO
 
